@@ -87,6 +87,8 @@ print(pd.crosstab(train['loan_status'],train['person_home_ownership'],values=tra
     
 indices = train[train['person_emp_length'] > 60].index
 train = train.drop(indices)
+indices = train[train['person_age'] > 100].index
+train = train.drop(indices)
 
 print(pd.crosstab(train['loan_status'],train['person_home_ownership'], values=train['person_emp_length'], aggfunc=['min','max']))
 
@@ -97,13 +99,34 @@ print(pd.crosstab(train['loan_status'],train['person_home_ownership'], values=tr
     1                          0.0   0.0  0.0  0.0     34.0  11.0  17.0  27.0
                   
                   
+print(train.columns[train.isnull().any()])
+print(train[train['person_emp_length'].isnull()].head())
+train['person_emp_length'].fillna((train['person_emp_length'].median()), inplace=True)
+n, bins, patches = plt.hist(train['person_emp_length'], bins='auto', color='blue')
+plt.xlabel("Person Employment Length")
+plt.show()                  
                   
+# Now we find the correlation between loan interest rate and loan grade to fill the missing values of loan int rate
+pd.crosstab(train['loan_grade'], train['loan_status'], values=train['loan_int_rate'], aggfunc='mean', margins=True)
+
+       loan_status          0          1        All
+        loan_grade                                  
+        A             7.303311   7.547595   7.327732
+        B            10.987726  11.035864  10.995555
+        C            13.464246  13.460852  13.463542
+        D            15.391206  15.340827  15.361250
+        E            16.992935  17.018424  17.009455
+        F            18.793750  18.530400  18.609159
+        G            19.160000  20.270345  20.251525
+        All          10.436168  13.059749  11.011677
                   
+# So the correlation is clearly visible and we can go ahead imputing the missing values of interest rate on the basis of the loan grade
+
+for i in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
+    print(i)
+    train['loan_int_rate'][train['loan_grade'] == i] = train['loan_int_rate'][train['loan_grade'] == i].fillna(train['loan_int_rate'][train['loan_grade'] == i].mean())
                   
-                  
-                  
-                  
-                  
+# Now our data set is complete with no null values and no absurd values                  
                   
                   
                   
