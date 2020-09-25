@@ -126,8 +126,66 @@ for i in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
     print(i)
     train['loan_int_rate'][train['loan_grade'] == i] = train['loan_int_rate'][train['loan_grade'] == i].fillna(train['loan_int_rate'][train['loan_grade'] == i].mean())
                   
-# Now our data set is complete with no null values and no absurd values                  
-                  
+# Now our data set is complete with no null values and no absurd values  
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+from sklearn.metrics import roc_curve, roc_auc_score, precision_recall_fscore_support
+from sklearn.metrics import confusion_matrix
+
+# Separate categorical and numerical variable
+train_cat = train.select_dtypes(include=['object'])
+train_num = train.select_dtypes(exclude=['object'])
+
+train_cat = pd.get_dummies(train_cat)
+train = pd.concat([train_num, train_cat], axis=1)
+train.dtypes
+
+X = train.drop('loan_status', axis=1)
+y = train['loan_status']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.4, stratify= y)
+
+model = LogisticRegression(solver='lbfgs')
+
+model.fit(X_train, y_train)
+pred_proba = model.predict_proba(X_test)
+preds_df = pd.DataFrame(pred_proba[:, 1][:5], columns = ['prob_default'])
+actual = y_test.head(5)
+print(pd.concat([actual.reset_index(drop=True), preds_df], axis=1))
+
+preds_df = pd.DataFrame(pred_proba[:, 1], columns = ['prob_default'])
+preds_df['loan_status'] = preds_df['prob_default'].apply(lambda x: 1 if x > 0.5 else 0)
+preds_df['loan_status'].value_counts()
+
+model.score(X_test, y_test)
+target_names = ['Non-Default', 'Default']
+classification_report(y_test, preds_df['loan_status'], target_names=target_names)
+#Recall = true positive predicte out of actual positives present
+#Precision = true positive predicted out of all positive predicted
+
+#Calculating Roc-Auc Score
+fallout, sesitivity, thresholds = roc_curve(y_test, preds_df['prob_default'])
+plt.plot(fallout, sesitivity)
+plt.plot([0,1], [0,1], linestyle = '--')
+auc = roc_auc_score(y_test, preds_df['prob_default'])
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                   
                   
                   
