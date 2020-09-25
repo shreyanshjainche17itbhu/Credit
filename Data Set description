@@ -57,7 +57,59 @@ plt.show()
 # 7.5 having the highest frequency is the median of interest rate distribution and the distribution is not unnimodal  nor a normal distributionn so taking mean to impute th missig
 values might no￼￼￼￼t be the appropriate approach.
 
-   
+plt.scatter(train['person_income'], train['person_age'], alpha=0.5)
+plt.xlabel('Person income')
+plt.ylabel('person age')
+plt.show()
+
+#Person age above 100 is not possible so we have to remove those data points or replace them with suitable value.
+#Plot describe some form of linear relationship with some outlier
+
+#Relationship among variables using crosstable
+pd.crosstab(train['loan_intent'], train['loan_status'], margins=True)
+
+    loan_status            0     1    All
+    loan_intent                          
+    DEBTCONSOLIDATION   3722  1490   5212
+    EDUCATION           5342  1111   6453
+    HOMEIMPROVEMENT     2664   941   3605
+    MEDICAL             4450  1621   6071
+    PERSONAL            4423  1098   5521
+    VENTURE             4872   847   5719
+    All                25473  7108  32581
+
+print(pd.crosstab(train['loan_status'],train['person_home_ownership'],values=train['person_emp_length'], aggfunc='max'))
+
+    person_home_ownership  MORTGAGE  OTHER   OWN   RENT
+    loan_status                                        
+    0                         123.0   24.0  31.0   41.0
+    1                          34.0   11.0  17.0  123.0
+    
+indices = train[train['person_emp_length'] > 60].index
+train = train.drop(indices)
+
+print(pd.crosstab(train['loan_status'],train['person_home_ownership'], values=train['person_emp_length'], aggfunc=['min','max']))
+
+                               min                      max                  
+    person_home_ownership MORTGAGE OTHER  OWN RENT MORTGAGE OTHER   OWN  RENT
+    loan_status                                                              
+    0                          0.0   0.0  0.0  0.0     38.0  24.0  31.0  41.0
+    1                          0.0   0.0  0.0  0.0     34.0  11.0  17.0  27.0
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
    
    
    
