@@ -54,7 +54,7 @@ plt.hist(train['loan_int_rate'], bins='auto', alpha=0.7)
 plt.xlabel('Loan interest rate')
 plt.show()
 ￼
-# 7.5 having the highest frequency is the median of interest rate distribution and the distribution is not unnimodal  nor a normal distributionn so taking mean to impute th missig
+# 7.5 having the highest frequency is the median of interest rate distribution and the distribution is not unimodal  nor a normal distributionn so taking mean to impute th missig
 values might no￼￼￼￼t be the appropriate approach.
 
 plt.scatter(train['person_income'], train['person_age'], alpha=0.5)
