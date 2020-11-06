@@ -166,32 +166,67 @@ classification_report(y_test, preds_df['loan_status'], target_names=target_names
 #Precision = true positive predicted out of all positive predicted
 
 #Calculating Roc-Auc Score
-fallout, sesitivity, thresholds = roc_curve(y_test, preds_df['prob_default'])
-plt.plot(fallout, sesitivity)
+fallout, sensitivity, thresholds = roc_curve(y_test, preds_df['prob_default'])
+plt.plot(fallout, sensitivity)
 plt.plot([0,1], [0,1], linestyle = '--')
 auc = roc_auc_score(y_test, preds_df['prob_default'])
+plt.show()
+
+#applying RandomForest
+data=pd.DataFrame({
+    'person_age':train.data[:,0],
+    'person_income':train.data[:,1],
+    'person_home_ownership':train.data[:,2],
+    'loan_intent':train.data[:,3],
+    'loan_amnt':train.data[:,4],
+    'loan_int_rate':train.data[:,5],
+    'cb_person_cred_hist_length':train.data[:,6],
+    'loan_status':train.target
+})
+
+
+from sklearn.model_selection import train_test_split
+
+X=data[['person_age', 'person_income', 'person_home_ownership', 'loan_intent', 'loan_amnt', 'loan_int_rate', 'cb_person_cred_hist_length']]  # Features
+y=data['loan_status']  # Labels
+
+# Split dataset into training set and test set
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+
+from sklearn.ensemble import RandomForestClassifier
+#Create a Gaussian Classifier
+clf=RandomForestClassifier(n_estimators=100)
+
+#Train the model using the training sets y_pred=clf.predict(X_test)
+clf.fit(X_train,y_train)
+y_pred=clf.predict(X_test)
+
+#Import scikit-learn metrics module for accuracy calculation
+from sklearn import metrics
+print("Accuracy:",metrics.accuracy_score(y_test, y_pred))
+
+RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini',
+            max_depth=None, max_features='auto', max_leaf_nodes=None,
+            min_impurity_decrease=0.0, min_impurity_split=None,
+            min_samples_leaf=1, min_samples_split=2,
+            min_weight_fraction_leaf=0.0, n_estimators=100, n_jobs=1,
+            oob_score=False, random_state=None, verbose=0,
+            warm_start=False)
+
+feature_imp = pd.Series(clf.feature_importances_,index=train.feature_names).sort_values(ascending=False)
+feature_imp
+
+%matplotlib inline
+# Creating a bar plot
+sns.barplot(x=feature_imp, y=feature_imp.index)
+# Add labels to your graph
+plt.xlabel('Feature Importance Score')
+plt.ylabel('Features')
+plt.title("Visualizing Important Features")
+plt.legend()
 plt.show()
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-                  
-                  
-                  
-                  
-                  
-   
-   
-   
-   
