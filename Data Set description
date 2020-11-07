@@ -226,3 +226,56 @@ recall: [0.99136154 0.71755188]
 fscore: [0.95775049 0.82076041]
 support: [10187  2843]
 
+# train test split the data (X, y)
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5)
+# train
+from sklearn.ensemble import RandomForestClassifier
+rf_clf = RandomForestClassifier(n_estimators=100)
+rf_clf.fit(X_train, y_train)
+# get the probability distribution
+probas = rf_clf.predict_proba(X_test)
+# plot
+plt.figure(dpi=150)
+plt.hist(probas, bins=20)
+plt.title('Classification Probabilities')
+plt.xlabel('Probability')
+plt.ylabel('# of Instances')
+plt.xlim([0.5, 1.0])
+plt.legend(target_names)
+plt.show()
+
+from sklearn.metrics import roc_curve, auc
+# get false and true positive rates
+fpr, tpr, thresholds = roc_curve(y_test, probas[:,0], pos_label=0)
+# get area under the curve
+roc_auc = auc(fpr, tpr)
+# PLOT ROC curve
+plt.figure(dpi=150)
+plt.plot(fpr, tpr, lw=1, color='green', label=f'AUC = {roc_auc:.3f}')
+plt.title('ROC Curve for RF classifier')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate (Recall)')
+plt.xlim([-0.05, 1.05])
+plt.ylim([-0.05, 1.05])
+plt.legend()
+plt.show()
+
+from sklearn.metrics import precision_recall_curve, average_precision_score, auc
+# get precision and recall values
+precision, recall, thresholds = precision_recall_curve(y_test, probas[:,0], pos_label=0)
+# average precision score
+avg_precision = average_precision_score(y_test, probas[:,1])
+# precision auc
+pr_auc = auc(recall, precision)
+# plot
+plt.figure(dpi=150)
+plt.plot(recall, precision, lw=1, color='blue', label=f'AP={avg_precision:.3f}; AUC={pr_auc:.3f}')
+plt.fill_between(recall, precision, -1, facecolor='lightblue', alpha=0.5)
+plt.title('PR Curve for RF classifier')
+plt.xlabel('Recall (TPR)')
+plt.ylabel('Precision')
+plt.xlim([-0.05, 1.05])
+plt.ylim([-0.05, 1.05])
+plt.legend()
+plt.show()
